@@ -13,7 +13,7 @@ services:
     ports:
       - '${MONGO_PORT}:27017'
     volumes:
-      - ${SERVER_DIRECTORY}/db:/data/db
+      - ${SERVER_DIRECTORY_MONGO}:/data/db
       - ${SERVER_DIRECTORY}/restore:/restore
       - ${SERVER_DIRECTORY}/log:/var/log/mongodb
       - ${SERVER_DIRECTORY}/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
@@ -55,17 +55,16 @@ services:
       - kg
     restart: always
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./nginx
     ports:
       - '${PROXY_PORT}:80'
   api:
-    image: imageName
+    image: dukematsci/dev-restful
     depends_on:
       - es
       - mongo
     restart: always
-    command: command
     environment:
       - DB_USERNAME=${MONGO_DEVS}
       - DB_PASSWORD=${MONGO_DEV_PWD}
@@ -74,22 +73,27 @@ services:
       - MONGO_PORT=${MONGO_PORT}
       - TKNS=${TKNS}
       - ESADDRESS=${ESADDRESS}
+      - PORT=${PORT}
+      - MINIO_PORT=${MINIO_PORT}
     ports:
-      - '${PORT}:80'
+      - '${PORT}:${PORT}'
   client:
-    image: imageName
-    command: command
+    image: dukematsci/dev-app
+    environment:
+      - API_PORT=${PORT}
+      - MINIO_PORT=${MINIO_PORT}
     ports:
       - '${CLIENT_PORT}:4000'
-  kg:
-    image: 'stain/jena-fuseki:4.0.0'
-    restart: always
-    environment:
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - JVM_ARGS=-Xmx3g
-    ports:
-      - '${KG_PORT}:3030'
-    volumes:
-      - ${SERVER_DIRECTORY}/fuseki:/fuseki
+  # kg:
+  #   image: 'stain/jena-fuseki:4.0.0'
+  #   restart: always
+  #   environment:
+  #     - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+  #     - JVM_ARGS=-Xmx3g
+  #   ports:
+  #     - '${KG_PORT}:3030'
+  #   volumes:
+  #     - ${SERVER_DIRECTORY}/fuseki:/fuseki
 volumes:
   ${SERVER_DIRECTORY}:
+  ${SERVER_DIRECTORY_MONGO}:
