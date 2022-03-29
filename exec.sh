@@ -5,6 +5,12 @@ if [[ $(whoami) != "root" ]]; then
   exit
 fi
 
+curl -skL --output ENV.gpg https://raw.githubusercontent.com/Duke-MatSci/deployer/main/ENV.gpg
+if [[ $? -ne 0 ]]; then
+  echo 'error obtaining environment variable'
+  exit
+fi
+
 gpg --quiet --batch --yes --decrypt --passphrase='$passphrase' --output ./ENV ENV.gpg 2> /dev/null
 
 alias composePullUp="docker-compose pull && docker-compose up -d"
