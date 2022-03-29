@@ -33,7 +33,10 @@ else
     cd /${APP_DIR}
 
     # Pull latest docker
-    git clone git@github.com:Duke-MatSci/deployer.git .
+    if [ ! -f ./docker-compose.yml ]; then
+        echo "Clone repository"
+        git clone git@github.com:Duke-MatSci/deployer.git .
+    fi
 
     composePullUp
 fi
